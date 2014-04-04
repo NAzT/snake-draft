@@ -1,48 +1,6 @@
-$(document).ready(function () {
 
-    console.log("READY")
-    //Canvas stuff
-    var canvas = $("#canvas")[0];
-    var ctx = canvas.getContext("2d");
-    var w = $("#canvas").width();
-    var h = $("#canvas").height();
-
-    //Lets save the cell width in a variable for easy control
-    var cw = 50;
-    var width = w;
-    var height = h;
-
-    var kBoardWidth = w;
-    var kBoardHeight= h;
-    var kPieceWidth = cw;
-    var kPieceHeight= cw;
-
-    var gridColor = "#009";
-
-    ctx.strokeStyle = "#009"; // Do this once only
-    //drawGrid(ctx,cw);
-
-    function drawGrid(ctx, size) {
-        ctx.beginPath();
-        ctx.fillStyle = gridColor;
-
-        var XSteps = Math.floor(w / cw);
-        var x = 0;
-        var len = 0;
-        console.log('XSteps', XSteps)
-
-        for (var i = 0, len = XSteps; i < len + 1; i++) {
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, w);
-
-            ctx.moveTo(0, x);
-            ctx.lineTo(w, x);
-            x += cw;
-        }
-        // similar for y
-        ctx.stroke();
-    }
-
+function drawGrid (ctx, width, height, cw) {
+    var gridColor = "#eee";
 
     // verical
     for (var x = 0.5; x < width; x += cw) {
@@ -56,9 +14,27 @@ $(document).ready(function () {
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
     }
-    ctx.strokeStyle = "#eee";
-    ctx.stroke();
 
+    ctx.strokeStyle = gridColor;
+    ctx.stroke();
+}
+
+
+$(document).ready(function () {
+    var canvas = $("#canvas")[0];
+    var ctx = canvas.getContext("2d");
+    var width = $("#canvas").width();
+    var height = $("#canvas").height();
+
+    //Lets save the cell width in a variable for easy control
+    var cw = 50;
+
+    var kBoardWidth = width;
+    var kBoardHeight= height;
+    var kPieceWidth = cw;
+    var kPieceHeight= cw;
+
+    drawGrid(ctx, width, height, cw);
 
     //Lets first create a generic function to paint cells
     function paint_cell(x, y) {
@@ -73,16 +49,10 @@ $(document).ready(function () {
         paint_cell(i, 0);
     };
 
-    function Cell(row, column) {
-        this.row = row;
-        this.column = column;
-    }
-
     console.log("----------", $('#canvas'));
     $canvas = $('#canvas');
 
     $canvas.click(function (e) {
-        console.log("CLICKED");
         var cell = getCursorPosition(e);
         paint_cell(cell.column, cell.row)
         console.log('pos', cell);
@@ -90,6 +60,12 @@ $(document).ready(function () {
 
 
     function getCursorPosition(e) {
+
+      function Cell(row, column) {
+          this.row = row;
+          this.column = column;
+      }
+
       var gCanvasElement = $canvas[0];
         /* returns Cell with .row and .column properties */
         var x;
