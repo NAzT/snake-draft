@@ -1,10 +1,15 @@
 
+function Cell(row, column) {
+  this.row = row;
+  this.column = column;
+}
+
 function drawGrid (ctx, width, height, cw) {
     var gridColor = "#eee";
 
     // verical
     for (var x = 0.5; x < width; x += cw) {
-        console.log(x)
+        // console.log(x)
         ctx.moveTo(x, 0);
         ctx.lineTo(x, height);
     }
@@ -21,13 +26,27 @@ function drawGrid (ctx, width, height, cw) {
 
 
 $(document).ready(function () {
+    window.snake = 
+    draw = function draw(argument) {
+        console.log("DRAWING");
+    }
+    speed = 10;
+    if(typeof game_loop != "undefined")  clearInterval(game_loop); 
+    game_loop = setInterval(draw, 1000/speed);
+
+    var width = 400;
+    var height = 400;
     var canvas = $("#canvas")[0];
+    canvas.width = width;
+    canvas.height = height;
     var ctx = canvas.getContext("2d");
-    var width = $("#canvas").width();
-    var height = $("#canvas").height();
+
 
     //Lets save the cell width in a variable for easy control
-    var cw = 50;
+    var COL = 10;
+    var ROW = 5;
+    var cw = width/COL;
+    var ch = width/ROW;
 
     var kBoardWidth = width;
     var kBoardHeight= height;
@@ -37,19 +56,25 @@ $(document).ready(function () {
     drawGrid(ctx, width, height, cw);
 
     //Lets first create a generic function to paint cells
-    function paint_cell(x, y) {
-        ctx.fillStyle = "blue";
+    window.paint_cell = function(x, y, color) {
+        ctx.fillStyle = color || "blue";
         ctx.fillRect(x * cw, y * cw, cw, cw);
-        ctx.strokeStyle = "white";
+        //ctx.strokeStyle = "white";
         ctx.strokeRect(x * cw, y * cw, cw, cw);
+
+        return new Cell(y, x);
+
     }
 
-    for (var i = 10; i < 30; i++) {
-        paint_cell(10, i);
-        paint_cell(i, 0);
+    window.remove_cell = function (x, y) {
+        paint_cell(x, y, "white");
+    }
+
+    for (var i = 0; i < 1; i++) {
+        console.log(paint_cell(0, i));
+        //paint_cell(i, 0);
     };
 
-    console.log("----------", $('#canvas'));
     $canvas = $('#canvas');
 
     $canvas.click(function (e) {
@@ -60,12 +85,7 @@ $(document).ready(function () {
 
 
     function getCursorPosition(e) {
-
-      function Cell(row, column) {
-          this.row = row;
-          this.column = column;
-      }
-
+      console.log("ON E", e);
       var gCanvasElement = $canvas[0];
         /* returns Cell with .row and .column properties */
         var x;
