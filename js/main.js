@@ -1,3 +1,13 @@
+remove_flag = true 
+var speed = 10;
+var direction = {
+    UP: 107,
+    DOWN: 106,
+    LEFT: 104,
+    RIGHT: 108
+}
+
+var heading = direction.DOWN;
 
 function Cell(row, column) {
   this.row = row;
@@ -9,7 +19,6 @@ function drawGrid (ctx, width, height, cw) {
 
     // verical
     for (var x = 0.5; x < width; x += cw) {
-        // console.log(x)
         ctx.moveTo(x, 0);
         ctx.lineTo(x, height);
     }
@@ -26,43 +35,106 @@ function drawGrid (ctx, width, height, cw) {
 
 
 $(document).ready(function () {
-    window.snake = 
-    draw = function draw(argument) {
-        console.log("DRAWING");
-    }
-    speed = 10;
-    if(typeof game_loop != "undefined")  clearInterval(game_loop); 
-    game_loop = setInterval(draw, 1000/speed);
-
     var width = 400;
     var height = 400;
     var canvas = $("#canvas")[0];
     canvas.width = width;
     canvas.height = height;
-    var ctx = canvas.getContext("2d");
 
 
     //Lets save the cell width in a variable for easy control
-    var COL = 10;
-    var ROW = 5;
+    var COL = 20;
+    var ROW = COL;
     var cw = width/COL;
-    var ch = width/ROW;
 
     var kBoardWidth = width;
     var kBoardHeight= height;
     var kPieceWidth = cw;
     var kPieceHeight= cw;
 
+
+    var ctx = canvas.getContext("2d");
+
+    window.snake = [];
+    snake[0] = new Cell(0, 1)
+    snake[1] = new Cell(0, 2)
+    snake[2] = new Cell(0, 3)
+    snake[3] = new Cell(0, 4)
+
+
+    draw = function draw(argument) {
+        var head = snake[0];
+
+        var x_h = head.row
+        var y_h = head.column
+
+        if (x_h > COL) {
+            x_h = 0;
+        }
+
+        if (y_h > ROW) {
+            y_h = 0;
+        }
+        //paint_cell(x_h, y_h, 'white')
+        //paint_cell(x_h++, y_h++, 'red')
+
+        var pc = snake.pop();
+
+        paint_cell(pc.row, pc.column, 'white');
+
+        pc.row = head.row
+        pc.column = head.column
+
+        if (heading == direction.DOWN) {
+            pc.row++;
+        }
+        else if (heading == direction.UP) {
+            pc.row--;
+            if (pc.row < 0) {
+                pc.row = ROW-1 
+            }
+        }
+        else if (heading == direction.LEFT) {
+            pc.column--;
+            if (pc.column < 0) {
+                pc.column = COL-1
+            }
+        }
+        else if (heading == direction.RIGHT) {
+            pc.column++;
+        }
+
+        pc.row = pc.row % ROW
+        pc.column = pc.column % COL
+        snake.unshift(pc);
+
+
+
+        snake.forEach(function (c, k) {
+            paint_cell(c.row, c.column)
+        })
+
+    }
+    if(typeof game_loop != "undefined")  clearInterval(game_loop);
+    game_loop = setInterval(draw, 1000/speed);
+
     drawGrid(ctx, width, height, cw);
 
     //Lets first create a generic function to paint cells
-    window.paint_cell = function(x, y, color) {
-        ctx.fillStyle = color || "blue";
-        ctx.fillRect(x * cw, y * cw, cw, cw);
-        //ctx.strokeStyle = "white";
-        ctx.strokeRect(x * cw, y * cw, cw, cw);
+    window.paint_cell = function(row, column, color) {
 
-        return new Cell(y, x);
+        jQuery.extend(ctx, { fillStyle: color || "black" })
+
+        settings = {
+              fillRect: [column * cw, row * cw, cw, cw],
+            strokeRect: [column * cw, row* cw, cw, cw]
+        }
+
+        jQuery.each(settings, function(k, v) {
+             ctx[k].apply(ctx, v);
+        })
+
+        return new Cell(row, column);
 
     }
 
@@ -71,7 +143,6 @@ $(document).ready(function () {
     }
 
     for (var i = 0; i < 1; i++) {
-        console.log(paint_cell(0, i));
         //paint_cell(i, 0);
     };
 
@@ -79,13 +150,54 @@ $(document).ready(function () {
 
     $canvas.click(function (e) {
         var cell = getCursorPosition(e);
-        paint_cell(cell.column, cell.row)
-        console.log('pos', cell);
+        paint_cell(cell.row, cell.column)
+        remove_flag = !remove_flag;
+    })
+
+    $canvas.mousemove(function (e) {
+        var cell = getCursorPosition(e);
+        if (remove_flag == true) {
+            paint_cell(cell.row, cell.column, "white")
+        }
+        else {
+            paint_cell(cell.row, cell.column)
+        }
     })
 
 
+    $('body').on('keypress', function (e) {
+        switch(e.charCode) {
+            //h
+            // left
+            case direction.LEFT:
+                if (heading != direction.RIGHT) {
+                    heading = direction.LEFT;
+                }
+                break; 
+            //j
+            //down
+            case direction.DOWN:
+                if (heading != direction.UP) {
+                    heading = direction.DOWN;
+                }
+                break; 
+            //k
+            //up
+            case direction.UP:
+                if (heading != direction.DOWN) {
+                    heading = direction.UP;
+                }
+                break;
+            //l
+            //right
+            case direction.RIGHT:
+                if (heading != direction.LEFT) {
+                    heading = direction.RIGHT;
+                }
+                break;
+        }
+    })
     function getCursorPosition(e) {
-      console.log("ON E", e);
       var gCanvasElement = $canvas[0];
         /* returns Cell with .row and .column properties */
         var x;
@@ -101,8 +213,9 @@ $(document).ready(function () {
         y -= gCanvasElement.offsetTop;
         x = Math.min(x, kBoardWidth * kPieceWidth);
         y = Math.min(y, kBoardHeight * kPieceHeight);
-        console.log(x, y)
-        var cell = new Cell(Math.floor(y / kPieceHeight), Math.floor(x / kPieceWidth));
+        var row = Math.floor(y / kPieceWidth);
+        var row = Math.floor(x / kPieceHeight);
+        var cell = new Cell(row, column) );
         return cell;
     }
 
