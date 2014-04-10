@@ -1,4 +1,4 @@
-remove_flag = true 
+remove_flag = true
 var speed = 10;
 var direction = {
     UP: 107,
@@ -14,33 +14,15 @@ function Cell(row, column) {
   this.column = column;
 }
 
-function drawGrid (ctx, width, height, cw) {
-    var gridColor = "#eee";
-
-    // verical
-    for (var x = 0.5; x < width; x += cw) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-    }
-
-    // horizontal
-    for (var y = 0.5; y < height; y += cw) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-    }
-
-    ctx.strokeStyle = gridColor;
-    ctx.stroke();
-}
-
-
 $(document).ready(function () {
     var width = 400;
     var height = 400;
     var canvas = $("#canvas")[0];
+    ctx = canvas.getContext("2d");
     canvas.width = width;
     canvas.height = height;
 
+    canvas = drawGrid(canvas, {width: 600, height: 600})
 
     //Lets save the cell width in a variable for easy control
     var COL = 20;
@@ -53,14 +35,14 @@ $(document).ready(function () {
     var kPieceHeight= cw;
 
 
-    var ctx = canvas.getContext("2d");
-
     window.snake = [];
+    window.food = [];
     snake[0] = new Cell(0, 1)
     snake[1] = new Cell(0, 2)
     snake[2] = new Cell(0, 3)
     snake[3] = new Cell(0, 4)
 
+    foods = [new Cell(5,5), new Cell(6, 6)]
 
     draw = function draw(argument) {
         var head = snake[0];
@@ -75,8 +57,16 @@ $(document).ready(function () {
         if (y_h > ROW) {
             y_h = 0;
         }
-        //paint_cell(x_h, y_h, 'white')
-        //paint_cell(x_h++, y_h++, 'red')
+
+
+        foods.forEach(function(c, k) {
+          if (c.row == head.row && c.column == head.column) {
+            snake.push(foods[k]);
+            var cell = new Cell(Math.round(Math.random()*100 % ROW), Math.round(Math.random()*100 % ROW))
+            foods[k] = cell;
+          }
+
+        });
 
         var pc = snake.pop();
 
@@ -91,7 +81,7 @@ $(document).ready(function () {
         else if (heading == direction.UP) {
             pc.row--;
             if (pc.row < 0) {
-                pc.row = ROW-1 
+                pc.row = ROW-1
             }
         }
         else if (heading == direction.LEFT) {
@@ -114,11 +104,18 @@ $(document).ready(function () {
             paint_cell(c.row, c.column)
         })
 
+
+        foods.forEach(function(c, k) {
+          paint_cell(c.row, c.column, 'red')
+        })
+
+
     }
     if(typeof game_loop != "undefined")  clearInterval(game_loop);
     game_loop = setInterval(draw, 1000/speed);
 
-    drawGrid(ctx, width, height, cw);
+    //drawGrid(ctx, width, height, cw);
+
 
     //Lets first create a generic function to paint cells
     window.paint_cell = function(row, column, color) {
@@ -142,9 +139,6 @@ $(document).ready(function () {
         paint_cell(x, y, "white");
     }
 
-    for (var i = 0; i < 1; i++) {
-        //paint_cell(i, 0);
-    };
 
     $canvas = $('#canvas');
 
@@ -173,14 +167,14 @@ $(document).ready(function () {
                 if (heading != direction.RIGHT) {
                     heading = direction.LEFT;
                 }
-                break; 
+                break;
             //j
             //down
             case direction.DOWN:
                 if (heading != direction.UP) {
                     heading = direction.DOWN;
                 }
-                break; 
+                break;
             //k
             //up
             case direction.UP:
@@ -214,9 +208,40 @@ $(document).ready(function () {
         x = Math.min(x, kBoardWidth * kPieceWidth);
         y = Math.min(y, kBoardHeight * kPieceHeight);
         var row = Math.floor(y / kPieceWidth);
-        var row = Math.floor(x / kPieceHeight);
-        var cell = new Cell(row, column) );
+        var column = Math.floor(x / kPieceHeight);
+        var cell = new Cell(row, column);
         return cell;
     }
 
 })
+
+
+function drawGrid(canvas, options) {
+    var width = options.width || 300;
+    var height = options.height || 300;
+    var row = options.row || 10;
+    var col = options.col || 10;
+    var cw = width/row;
+    var gridColor = options.color || "#eee";
+
+    var ctx = canvas.getContext("2d");
+    canvas.width = width;
+    canvas.height = height;
+
+    // verical
+    for (var x = 0.5; x < width; x += cw) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+    }
+
+    // horizontal
+    for (var y = 0.5; y < height; y += cw) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+    }
+
+    ctx.strokeStyle = gridColor;
+    ctx.stroke();
+
+    return canvas;
+}
