@@ -77,7 +77,7 @@ $(document).ready(function () {
 
         var pc = snake.pop();
 
-        var options = jQuery.extend(GLOBAL_SETTINGS, {row: pc.row, column: pc.column, color: 'green'});
+        var options = {row: pc.row, column: pc.column, color: 'green'};
 
         paint_cell(canvas, options);
 
@@ -167,14 +167,14 @@ $(document).ready(function () {
 
     $canvas.click(function (e) {
         var cell = getCursorPosition(e);
-        var options = jQuery.extend(GLOBAL_SETTINGS, { row: cell.row, column: cell.column})
+        var options = { row: cell.row, column: cell.column };
         paint_cell(canvas, options)
         remove_flag = !remove_flag;
     })
 
     $canvas.mousemove(function (e) {
         var cell = getCursorPosition(e);
-        var options = jQuery.extend(GLOBAL_SETTINGS, { row: cell.row, column: cell.column});
+        var options = { row: cell.row, column: cell.column};
         if (remove_flag == true) {
             options.color = 'white'
             paint_cell(canvas, options)
