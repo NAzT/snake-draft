@@ -77,8 +77,7 @@ $(document).ready(function () {
 
         var pc = snake.pop();
 
-        var options = jQuery.extend(GLOBAL_SETTINGS, 
-            {row: pc.row, column: pc.column, color: 'white'});
+        var options = jQuery.extend(GLOBAL_SETTINGS, {row: pc.row, column: pc.column, color: 'green'});
 
         paint_cell(canvas, options);
 
