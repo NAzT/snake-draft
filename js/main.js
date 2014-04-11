@@ -29,7 +29,7 @@ $(document).ready(function () {
     canvas.width = width;
     canvas.height = height;
 
-    canvas = drawGrid(canvas, GLOBAL_SETTINGS)
+    canvas = drawGrid(canvas)
 
     //Lets save the cell width in a variable for easy control
     var COL = 20;
@@ -212,6 +212,7 @@ $(document).ready(function () {
 
 
 function drawGrid(canvas, options) {
+    options = jQuery.extend(GLOBAL_SETTINGS, options)
     var width = options.width || 300;
     var height = options.height || 300;
     var row = options.MAX_ROW|| 10;
