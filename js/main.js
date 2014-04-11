@@ -29,7 +29,7 @@ $(document).ready(function () {
     canvas.width = width;
     canvas.height = height;
 
-    canvas = drawGrid(canvas)
+    canvas = DRAWER.drawGrid(canvas)
 
     //Lets save the cell width in a variable for easy control
     var COL = 20;
@@ -79,7 +79,7 @@ $(document).ready(function () {
         // remove tail
 
         var pc = snake.pop();
-        paint_cell(canvas, {row: pc.row, column: pc.column, color: 'white'});
+        DRAWER.paint_cell(canvas, {row: pc.row, column: pc.column, color: 'white'});
 
         pc.row = head.row
         pc.column = head.column
@@ -109,13 +109,13 @@ $(document).ready(function () {
 
         snake.forEach(function (c, k) {
             var options = {row: pc.row, column: pc.column, color: 'blue'}
-            paint_cell(canvas, options)
+            DRAWER.paint_cell(canvas, options)
         })
 
 
         foods.forEach(function(c, k) {
           var options = {row: c.row, column: c.column, color: 'red'}
-          paint_cell(canvas, options);
+          DRAWER.paint_cell(canvas, options);
         })
 
 
@@ -127,7 +127,7 @@ $(document).ready(function () {
 
 
     window.remove_cell = function (x, y) {
-        paint_cell(canvas, {row: x, column:  y, color: "white"});
+        DRAWER.paint_cell(canvas, {row: x, column:  y, color: "white"});
     }
 
 
@@ -136,7 +136,7 @@ $(document).ready(function () {
     $canvas.click(function (e) {
         var cell = getCursorPosition(e);
         var options = { row: cell.row, column: cell.column };
-        paint_cell(canvas, options)
+        DRAWER.paint_cell(canvas, options)
         remove_flag = !remove_flag;
     })
 
@@ -145,11 +145,11 @@ $(document).ready(function () {
         var options = { row: cell.row, column: cell.column};
         if (remove_flag == true) {
             options.color = 'white'
-            paint_cell(canvas, options)
+            DRAWER.paint_cell(canvas, options)
         }
         else {
             options.color = 'red'
-            paint_cell(canvas, options)
+            DRAWER.paint_cell(canvas, options)
         }
     })
 
@@ -211,63 +211,69 @@ $(document).ready(function () {
 })
 
 
-function drawGrid(canvas, options) {
-    options = jQuery.extend(GLOBAL_SETTINGS, options)
-    var width = options.width || 300;
-    var height = options.height || 300;
-    var row = options.MAX_ROW|| 10;
-    var col = options.MAX_COL || 10;
-    var cw = width/row;
-    var gridColor = options.color || "#eee";
+var DRAWER = (function (GLOBAL_SETTINGS) {
+    function drawGrid(canvas, options) {
+        options = jQuery.extend(GLOBAL_SETTINGS, options)
+        var width = options.width || 300;
+        var height = options.height || 300;
+        var row = options.MAX_ROW|| 10;
+        var col = options.MAX_COL || 10;
+        var cw = width/row;
+        var gridColor = options.color || "#eee";
 
-    var ctx = canvas.getContext("2d");
-    canvas.width = width;
-    canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        canvas.width = width;
+        canvas.height = height;
 
-    // verical
-    for (var x = 0.5; x < width; x += cw) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
+        // verical
+        for (var x = 0.5; x < width; x += cw) {
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+        }
+
+        // horizontal
+        for (var y = 0.5; y < height; y += cw) {
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+        }
+
+        ctx.strokeStyle = gridColor;
+        ctx.stroke();
+
+        return canvas;
     }
 
-    // horizontal
-    for (var y = 0.5; y < height; y += cw) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
+
+    //Lets first create a generic function to paint cells
+    var paint_cell = function(canvas, options) {
+        options = jQuery.extend(GLOBAL_SETTINGS, options)
+        var width = options.width || 300;
+        var height = options.height || 300;
+        var color = options.color || 'blue';
+        var row = options.row;
+        var col = options.column;
+        var column = col;
+
+        var cw = width/options.MAX_ROW;
+        var gridColor = options.color || "#eee";
+        var ctx = canvas.getContext("2d");
+
+        jQuery.extend(ctx, { fillStyle: color || "black" })
+
+        settings = {
+              fillRect: [column * cw, row * cw, cw, cw],
+            strokeRect: [column * cw, row* cw, cw, cw]
+        }
+
+        jQuery.each(settings, function(k, v) {
+             ctx[k].apply(ctx, v);
+        })
+
+        return new Cell(row, column);
+
     }
-
-    ctx.strokeStyle = gridColor;
-    ctx.stroke();
-
-    return canvas;
-}
-
-
-//Lets first create a generic function to paint cells
-var paint_cell = function(canvas, options) {
-    options = jQuery.extend(GLOBAL_SETTINGS, options)
-    var width = options.width || 300;
-    var height = options.height || 300;
-    var color = options.color || 'blue';
-    var row = options.row;
-    var col = options.column;
-    var column = col;
-
-    var cw = width/options.MAX_ROW;
-    var gridColor = options.color || "#eee";
-    var ctx = canvas.getContext("2d");
-
-    jQuery.extend(ctx, { fillStyle: color || "black" })
-
-    settings = {
-          fillRect: [column * cw, row * cw, cw, cw],
-        strokeRect: [column * cw, row* cw, cw, cw]
+    return {
+        drawGrid: drawGrid,
+        paint_cell: paint_cell 
     }
-
-    jQuery.each(settings, function(k, v) {
-         ctx[k].apply(ctx, v);
-    })
-
-    return new Cell(row, column);
-
-}
+})(GLOBAL_SETTINGS)
