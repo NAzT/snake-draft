@@ -75,11 +75,11 @@ $(document).ready(function () {
 
         });
 
+
+        // remove tail
+
         var pc = snake.pop();
-
-        var options = {row: pc.row, column: pc.column, color: 'green'};
-
-        paint_cell(canvas, options);
+        paint_cell(canvas, {row: pc.row, column: pc.column, color: 'white'});
 
         pc.row = head.row
         pc.column = head.column
@@ -107,8 +107,6 @@ $(document).ready(function () {
         pc.column = pc.column % COL
         snake.unshift(pc);
 
-
-
         snake.forEach(function (c, k) {
             var options = {row: pc.row, column: pc.column, color: 'blue'}
             paint_cell(canvas, options)
@@ -127,36 +125,6 @@ $(document).ready(function () {
 
     //drawGrid(ctx, width, height, cw);
 
-
-    //Lets first create a generic function to paint cells
-    window.paint_cell = function(canvas, options) {
-        options = jQuery.extend(GLOBAL_SETTINGS, options)
-        console.log("OPTIONS", options)
-        var width = options.width || 300;
-        var height = options.height || 300;
-        var color = options.color || 'blue';
-        var row = options.row;
-        var col = options.column;
-        var column = col;
-
-        var cw = width/options.MAX_ROW;
-        var gridColor = options.color || "#eee";
-        var ctx = canvas.getContext("2d");
-
-        jQuery.extend(ctx, { fillStyle: color || "black" })
-
-        settings = {
-              fillRect: [column * cw, row * cw, cw, cw],
-            strokeRect: [column * cw, row* cw, cw, cw]
-        }
-
-        jQuery.each(settings, function(k, v) {
-             ctx[k].apply(ctx, v);
-        })
- 
-        return new Cell(row, column);
-
-    }
 
     window.remove_cell = function (x, y) {
         paint_cell(canvas, {row: x, column:  y, color: "white"});
@@ -271,4 +239,34 @@ function drawGrid(canvas, options) {
     ctx.stroke();
 
     return canvas;
+}
+
+
+//Lets first create a generic function to paint cells
+var paint_cell = function(canvas, options) {
+    options = jQuery.extend(GLOBAL_SETTINGS, options)
+    var width = options.width || 300;
+    var height = options.height || 300;
+    var color = options.color || 'blue';
+    var row = options.row;
+    var col = options.column;
+    var column = col;
+
+    var cw = width/options.MAX_ROW;
+    var gridColor = options.color || "#eee";
+    var ctx = canvas.getContext("2d");
+
+    jQuery.extend(ctx, { fillStyle: color || "black" })
+
+    settings = {
+          fillRect: [column * cw, row * cw, cw, cw],
+        strokeRect: [column * cw, row* cw, cw, cw]
+    }
+
+    jQuery.each(settings, function(k, v) {
+         ctx[k].apply(ctx, v);
+    })
+
+    return new Cell(row, column);
+
 }
