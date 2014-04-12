@@ -2,10 +2,10 @@ remove_flag = true
 var speed = 5  ;
 
 var GLOBAL_SETTINGS = {
-    width: 500,
-    height: 500,
-    MAX_ROW: 100,
-    MAX_COL: 100,
+    width: 450,
+    height: 450,
+    MAX_ROW: 20,
+    MAX_COL: 20,
 }
 
 
@@ -18,7 +18,7 @@ function Cell(row, column) {
   this.column = column;
 
   this.mutate = function(val) {
-    this.row = val.row
+    this.row = val.row;
     this.column = val.column
   }
 
@@ -103,10 +103,10 @@ var snake_action = {
         snake.row++;
     },
     UP: function(snake) {
-        (snake.row < 0) ? snake.row = GLOBAL_SETTINGS.ROW-1 : snake.row--;
+        snake.row--;
     },
     LEFT: function(snake) {
-        (snake.column < 0) ? snake.column = GLOBAL_SETTINGS.COL-1 : snake.column--;
+        snake.column--;
     },
     RIGHT: function(snake) {
         snake.column++;
@@ -131,6 +131,34 @@ var get_prepared_canvas = function(canvas_id) {
     return canvas;
 }
 
+function getCursorPosition(e) {
+    var gCanvasElement = get_prepared_canvas();
+
+    var kBoardWidth = GLOBAL_SETTINGS.width;
+    var kBoardHeight= GLOBAL_SETTINGS.height;
+
+    var kPieceWidth = get_cw(GLOBAL_SETTINGS);
+    var kPieceHeight= get_cw(GLOBAL_SETTINGS);
+    /* returns Cell with .row and .column properties */
+    var x;
+    var y;
+    if (e.pageX != undefined && e.pageY != undefined) {
+        x = e.pageX;
+        y = e.pageY;
+    } else {
+        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+    x -= gCanvasElement.offsetLeft;
+    y -= gCanvasElement.offsetTop;
+    x = Math.min(x, kBoardWidth * kPieceWidth);
+    y = Math.min(y, kBoardHeight * kPieceHeight);
+    var row = Math.floor(y / kPieceWidth);
+    var column = Math.floor(x / kPieceHeight);
+    var cell = new Cell(row, column);
+    return cell;
+}
+
 $(document).ready(function () {
 
     var width = GLOBAL_SETTINGS.width;
@@ -144,11 +172,6 @@ $(document).ready(function () {
     var COL = GLOBAL_SETTINGS.MAX_COL;
     var ROW = COL;
     var cw = get_cw(GLOBAL_SETTINGS);
-
-    var kBoardWidth = width;
-    var kBoardHeight= height;
-    var kPieceWidth = cw;
-    var kPieceHeight= cw;
 
 
     window.snake = [];
@@ -185,9 +208,7 @@ $(document).ready(function () {
         tail.mutate({row: head.row, column: head.column})
 
         var heading = direction_mngr.get_heading_direction_string();
-
-        var current_snake_direction = direction_mngr.get_heading_direction_string(); 
-
+        var current_snake_direction = direction_mngr.get_heading_direction_string();
 
         snake_action[current_snake_direction](tail);
 
@@ -205,8 +226,6 @@ $(document).ready(function () {
     if(typeof game_loop != "undefined")  clearInterval(game_loop);
     game_loop = setInterval(draw, 1000/speed);
 
-    //drawGrid(ctx, width, height, cw);
-
 
     window.remove_cell = function (x, y) {
         DRAWER.paint_cell(canvas, {row: x, column:  y, color: "white"});
@@ -217,9 +236,8 @@ $(document).ready(function () {
 
     $canvas.click(function (e) {
         var cell = getCursorPosition(e);
-        var options = { row: cell.row, column: cell.column };
+        var options = { row: cell.row, column: cell.column, color: 'green'};
         DRAWER.paint_cell(canvas, options)
-        remove_flag = !remove_flag;
     })
 
     // $canvas.mousemove(function (e) {
@@ -239,27 +257,6 @@ $(document).ready(function () {
     $('body').on('keypress', function (e) {
         direction_mngr.set_heading_direction(e.charCode);
     })
-    function getCursorPosition(e) {
-      var gCanvasElement = $canvas[0];
-        /* returns Cell with .row and .column properties */
-        var x;
-        var y;
-        if (e.pageX != undefined && e.pageY != undefined) {
-            x = e.pageX;
-            y = e.pageY;
-        } else {
-            x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-            y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-        }
-        x -= gCanvasElement.offsetLeft;
-        y -= gCanvasElement.offsetTop;
-        x = Math.min(x, kBoardWidth * kPieceWidth);
-        y = Math.min(y, kBoardHeight * kPieceHeight);
-        var row = Math.floor(y / kPieceWidth);
-        var column = Math.floor(x / kPieceHeight);
-        var cell = new Cell(row, column);
-        return cell;
-    }
 
 })
 
