@@ -1,28 +1,90 @@
 remove_flag = true
-var speed = 20  ;
-var direction = {
-    UP: 107,
-    DOWN: 106,
-    LEFT: 104,
-    RIGHT: 108
-}
+var speed = 5  ;
 
 var GLOBAL_SETTINGS = {
-    width: 800,
-    height: 800,
-    MAX_ROW: 200,
-    MAX_COL: 200,
+    width: 400,
+    height: 400,
+    MAX_ROW: 20,
+    MAX_COL: 20,
 }
+
 
 var get_cw = function (settings) {
     return settings.width / settings.MAX_ROW
 }
 
-var heading = direction.DOWN;
-
 function Cell(row, column) {
   this.row = row;
   this.column = column;
+}
+
+
+var Direction = function () {
+    var DIRECTION_STRING = {
+        107: 'UP',
+        106: 'DOWN',
+        104: 'LEFT',
+        108: 'RIGHT'
+    }
+
+    var DIRECTION = {
+        UP: 107,
+        DOWN: 106,
+        LEFT: 104,
+        RIGHT: 108
+    }
+
+    var _heading = DIRECTION.RIGHT;
+
+    this.get_heading_direction_string = function() {
+        return DIRECTION_STRING[_heading];
+    }
+
+    this.get_heading_direction = function() {
+        return _heading; 
+    }
+
+    this.set_heading_direction = function(charCode) {
+        switch(charCode) {
+            case DIRECTION.LEFT:
+                if (_heading != DIRECTION.RIGHT) {
+                    _heading = DIRECTION.LEFT;
+                }
+                break;
+            case DIRECTION.DOWN:
+                if (_heading != DIRECTION.UP) {
+                    _heading = DIRECTION.DOWN;
+                }
+    
+                break;
+            case DIRECTION.UP:
+                if (_heading != DIRECTION.DOWN) {
+                    _heading = DIRECTION.UP;
+                }
+                break;
+            case DIRECTION.RIGHT:
+                if (_heading != DIRECTION.LEFT) {
+                    _heading = DIRECTION.RIGHT;
+                }
+                break;
+        }
+    }
+
+
+    this.heading = function(direction) {
+        return _heading == DIRECTION[direction.toUpperCase()];
+    }
+
+}
+
+var direction_obj = new Direction();
+
+
+var draw_squares = function (squares, opts) {
+    squares.forEach(function (c, k) {
+        var options = {row: c.row, column: c.column, color: opts.color}
+        DRAWER.paint_cell(opts.canvas, options);
+    })
 }
 
 $(document).ready(function () {
@@ -90,22 +152,24 @@ $(document).ready(function () {
         pc.row = head.row
         pc.column = head.column
 
-        if (heading == direction.DOWN) {
+        var heading = direction_obj.get_heading_direction_string();
+
+        if (direction_obj.heading("DOWN")) {
             pc.row++;
         }
-        else if (heading == direction.UP) {
+        else if (direction_obj.heading("UP")) {
             pc.row--;
             if (pc.row < 0) {
                 pc.row = ROW-1
             }
         }
-        else if (heading == direction.LEFT) {
+        else if (direction_obj.heading("LEFT")) {
             pc.column--;
             if (pc.column < 0) {
                 pc.column = COL-1
             }
         }
-        else if (heading == direction.RIGHT) {
+        else if (direction_obj.heading("RIGHT")) {
             pc.column++;
         }
 
@@ -113,16 +177,9 @@ $(document).ready(function () {
         pc.column = pc.column % COL
         snake.unshift(pc);
 
-        snake.forEach(function (c, k) {
-            var options = {row: pc.row, column: pc.column, color: 'blue'}
-            DRAWER.paint_cell(canvas, options)
-        })
 
-
-        foods.forEach(function(c, k) {
-          var options = {row: c.row, column: c.column, color: 'red'}
-          DRAWER.paint_cell(canvas, options);
-        })
+        draw_squares(foods, { canvas: canvas, color: 'red'})
+        draw_squares(snake, { canvas: canvas, color: 'blue'})
 
 
     }
@@ -161,36 +218,7 @@ $(document).ready(function () {
 
 
     $('body').on('keypress', function (e) {
-        switch(e.charCode) {
-            //h
-            // left
-            case direction.LEFT:
-                if (heading != direction.RIGHT) {
-                    heading = direction.LEFT;
-                }
-                break;
-            //j
-            //down
-            case direction.DOWN:
-                if (heading != direction.UP) {
-                    heading = direction.DOWN;
-                }
-                break;
-            //k
-            //up
-            case direction.UP:
-                if (heading != direction.DOWN) {
-                    heading = direction.UP;
-                }
-                break;
-            //l
-            //right
-            case direction.RIGHT:
-                if (heading != direction.LEFT) {
-                    heading = direction.RIGHT;
-                }
-                break;
-        }
+        direction_obj.set_heading_direction(e.charCode);
     })
     function getCursorPosition(e) {
       var gCanvasElement = $canvas[0];
@@ -276,7 +304,6 @@ var DRAWER = (function (GLOBAL_SETTINGS) {
              ctx[k].apply(ctx, v);
         })
 
-        console.log(row, column)
         return new Cell(row, column);
 
     }
