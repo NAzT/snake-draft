@@ -1,35 +1,35 @@
 remove_flag = true
 var speed = 5  ;
 
-var GLOBAL_SETTINGS = {
-    width: 450,
-    height: 450,
-    MAX_ROW: 20,
-    MAX_COL: 20,
-}
-
-
-var get_cw = function (settings) {
-    return settings.width / settings.MAX_ROW
-}
-
 
 var direction_mngr = new DirectionManager();
 
-var DRAWER = DrawerManager.get_drawer(GLOBAL_SETTINGS);
+var Cell = generate_cell({
+    width: 450,
+    height: 450,
+    MAX_ROW: 20,    
+    MAX_COL: 20,
+});
+
+var DRAWER = DrawerManager.get_drawer({
+    width: 450,
+    height: 450,
+    MAX_ROW: 20,    
+    MAX_COL: 20,
+});
 
 
 
 
 
 function getCursorPosition(e) {
-    var gCanvasElement = get_prepared_canvas();
+    var gCanvasElement = DRAWER.get_prepared_canvas();
 
     var kBoardWidth = GLOBAL_SETTINGS.width;
     var kBoardHeight= GLOBAL_SETTINGS.height;
 
-    var kPieceWidth = get_cw(GLOBAL_SETTINGS);
-    var kPieceHeight= get_cw(GLOBAL_SETTINGS);
+    var kPieceWidth = DRAWER.get_cw();
+    var kPieceHeight= DRAWER.get_cw();
     /* returns Cell with .row and .column properties */
     var x;
     var y;
@@ -51,18 +51,12 @@ function getCursorPosition(e) {
 }
 
 $(document).ready(function () {
-
-    var width = GLOBAL_SETTINGS.width;
-    var height = GLOBAL_SETTINGS.height;
-
-    var canvas = get_prepared_canvas();
+    var canvas = DRAWER.get_prepared_canvas();
     ctx = canvas.getContext("2d");
+
     canvas = DRAWER.draw_grid(canvas)
 
-    //Lets save the cell width in a variable for easy control
-    var COL = GLOBAL_SETTINGS.MAX_COL;
-    var ROW = COL;
-    var cw = get_cw(GLOBAL_SETTINGS);
+
 
 
     window.snake = [];

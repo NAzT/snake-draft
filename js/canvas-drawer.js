@@ -5,24 +5,14 @@ var draw_squares = function (squares, opts) {
     })
 }
 
-var get_prepared_canvas = function(canvas_id) {
-
-    var canvas = document.getElementById(canvas_id || 'canvas')
-
-    canvas.width = GLOBAL_SETTINGS.width;
-    canvas.height = GLOBAL_SETTINGS.height;
-
-    return canvas;
-}
-
 
 
 
 var DrawerManager = (function() {
 
-        var generate_drawer = function() {
+        var generate_drawer = function(GLOBAL_SETTINGS) {
 
-            function drawGrid(canvas, options) {
+            function draw_grid(canvas, options) {
                 options = jQuery.extend(GLOBAL_SETTINGS, options)
                 var width = options.width || 300;
                 var height = options.height || 300;
@@ -83,9 +73,27 @@ var DrawerManager = (function() {
                 return new Cell(row, column);
 
             }
+
+            var get_cw = function() {
+                return GLOBAL_SETTINGS.width / GLOBAL_SETTINGS.MAX_ROW
+            }
+
+            var get_prepared_canvas = function(canvas_id) {
+
+                var canvas = document.getElementById(canvas_id || 'canvas')
+
+                canvas.width = GLOBAL_SETTINGS.width;
+                canvas.height = GLOBAL_SETTINGS.height;
+
+                return canvas;
+            }
+
+
             return {
-                draw_grid: drawGrid,
-                paint_cell: paint_cell 
+                draw_grid: draw_grid,
+                paint_cell: paint_cell,
+                get_cw: get_cw,
+                get_prepared_canvas: get_prepared_canvas
             }
         }
     return {
