@@ -2,10 +2,10 @@ remove_flag = true
 var speed = 5  ;
 
 var GLOBAL_SETTINGS = {
-    width: 400,
-    height: 400,
-    MAX_ROW: 20,
-    MAX_COL: 20,
+    width: 500,
+    height: 500,
+    MAX_ROW: 100,
+    MAX_COL: 100,
 }
 
 
@@ -16,10 +16,31 @@ var get_cw = function (settings) {
 function Cell(row, column) {
   this.row = row;
   this.column = column;
+
+  this.mutate = function(val) {
+    this.row = val.row
+    this.column = val.column
+  }
+
+  this.correct_cell = function() {
+    this.row = this.row % GLOBAL_SETTINGS.MAX_ROW;
+    this.column %= GLOBAL_SETTINGS.MAX_COL;
+
+    if (this.row <0) {
+        this.row = GLOBAL_SETTINGS.MAX_ROW;
+    }
+
+    if (this.column < 0) {
+        this.column = GLOBAL_SETTINGS.MAX_COL;
+    }
+
+  }
+
 }
 
 
-var Direction = function () {
+
+var DirectionManager = function () {
     var DIRECTION_STRING = {
         107: 'UP',
         106: 'DOWN',
@@ -70,23 +91,22 @@ var Direction = function () {
         }
     }
 
-
     this.heading = function(direction) {
         return _heading == DIRECTION[direction.toUpperCase()];
     }
 
 }
 
-var direction_obj = new Direction();
+var direction_mngr = new DirectionManager();
 var snake_action = {
     DOWN: function(snake) {
         snake.row++;
     },
     UP: function(snake) {
-        (snake.row < 0) ? snake.row = ROW-1 : snake.row--;
+        (snake.row < 0) ? snake.row = GLOBAL_SETTINGS.ROW-1 : snake.row--;
     },
     LEFT: function(snake) {
-        (snake.column < 0) ? snake.column = COL-1 : snake.column--;
+        (snake.column < 0) ? snake.column = GLOBAL_SETTINGS.COL-1 : snake.column--;
     },
     RIGHT: function(snake) {
         snake.column++;
@@ -101,16 +121,23 @@ var draw_squares = function (squares, opts) {
     })
 }
 
+var get_prepared_canvas = function(canvas_id) {
+
+    var canvas = document.getElementById(canvas_id || 'canvas')
+
+    canvas.width = GLOBAL_SETTINGS.width;
+    canvas.height = GLOBAL_SETTINGS.height;
+
+    return canvas;
+}
+
 $(document).ready(function () {
 
     var width = GLOBAL_SETTINGS.width;
     var height = GLOBAL_SETTINGS.height;
 
-    var canvas = $("#canvas")[0];
+    var canvas = get_prepared_canvas();
     ctx = canvas.getContext("2d");
-    canvas.width = GLOBAL_SETTINGS.width;
-    canvas.height = GLOBAL_SETTINGS.height;
-
     canvas = DRAWER.drawGrid(canvas)
 
     //Lets save the cell width in a variable for easy control
@@ -125,34 +152,25 @@ $(document).ready(function () {
 
 
     window.snake = [];
-    window.food = [];
+    window.foods = [];
     snake[0] = new Cell(0, 1)
     snake[1] = new Cell(0, 2)
     snake[2] = new Cell(0, 3)
     snake[3] = new Cell(0, 4)
 
-    foods = [new Cell(5,5), new Cell(6, 6)]
+    foods = [new Cell(4, 5), new Cell(6, 6)]
 
     draw = function draw(argument) {
         var head = snake[0];
-
-        var x_h = head.row
-        var y_h = head.column
-
-        if (x_h > COL) {
-            x_h = 0;
-        }
-
-        if (y_h > ROW) {
-            y_h = 0;
-        }
-
 
         foods.forEach(function(c, k) {
           if (c.row == head.row && c.column == head.column) {
             snake.push(foods[k]);
             var cell = new Cell(Math.round(Math.random()*100 % ROW), Math.round(Math.random()*100 % ROW))
             foods[k] = cell;
+            speed++;
+            if(typeof game_loop != "undefined")  clearInterval(game_loop);
+            game_loop = setInterval(draw, 1000/speed);
           }
 
         });
@@ -160,23 +178,22 @@ $(document).ready(function () {
 
         // remove tail
 
-        var pc = snake.pop();
-        DRAWER.paint_cell(canvas, {row: pc.row, column: pc.column, color: 'white'});
+        var tail = snake.pop();
 
-        pc.row = head.row
-        pc.column = head.column
+        DRAWER.paint_cell(canvas, {row: tail.row, column: tail.column, color: 'white'});
 
-        var heading = direction_obj.get_heading_direction_string();
+        tail.mutate({row: head.row, column: head.column})
 
-        var current_snake_direction = direction_obj.get_heading_direction_string(); 
+        var heading = direction_mngr.get_heading_direction_string();
 
-
-        snake_action[current_snake_direction](pc);
+        var current_snake_direction = direction_mngr.get_heading_direction_string(); 
 
 
-        pc.row = pc.row % ROW
-        pc.column = pc.column % COL
-        snake.unshift(pc);
+        snake_action[current_snake_direction](tail);
+
+        tail.correct_cell();
+
+        snake.unshift(tail);
 
 
         draw_squares(foods, { canvas: canvas, color: 'red'})
@@ -184,6 +201,7 @@ $(document).ready(function () {
 
 
     }
+
     if(typeof game_loop != "undefined")  clearInterval(game_loop);
     game_loop = setInterval(draw, 1000/speed);
 
@@ -219,7 +237,7 @@ $(document).ready(function () {
 
 
     $('body').on('keypress', function (e) {
-        direction_obj.set_heading_direction(e.charCode);
+        direction_mngr.set_heading_direction(e.charCode);
     })
     function getCursorPosition(e) {
       var gCanvasElement = $canvas[0];
