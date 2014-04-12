@@ -78,6 +78,20 @@ var Direction = function () {
 }
 
 var direction_obj = new Direction();
+var snake_action = {
+    DOWN: function(snake) {
+        snake.row++;
+    },
+    UP: function(snake) {
+        (snake.row < 0) ? snake.row = ROW-1 : snake.row--;
+    },
+    LEFT: function(snake) {
+        (snake.column < 0) ? snake.column = COL-1 : snake.column--;
+    },
+    RIGHT: function(snake) {
+        snake.column++;
+    }
+}
 
 
 var draw_squares = function (squares, opts) {
@@ -154,24 +168,11 @@ $(document).ready(function () {
 
         var heading = direction_obj.get_heading_direction_string();
 
-        if (direction_obj.heading("DOWN")) {
-            pc.row++;
-        }
-        else if (direction_obj.heading("UP")) {
-            pc.row--;
-            if (pc.row < 0) {
-                pc.row = ROW-1
-            }
-        }
-        else if (direction_obj.heading("LEFT")) {
-            pc.column--;
-            if (pc.column < 0) {
-                pc.column = COL-1
-            }
-        }
-        else if (direction_obj.heading("RIGHT")) {
-            pc.column++;
-        }
+        var current_snake_direction = direction_obj.get_heading_direction_string(); 
+
+
+        snake_action[current_snake_direction](pc);
+
 
         pc.row = pc.row % ROW
         pc.column = pc.column % COL
