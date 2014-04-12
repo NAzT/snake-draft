@@ -1,5 +1,5 @@
 remove_flag = true
-var speed = 10;
+var speed = 20  ;
 var direction = {
     UP: 107,
     DOWN: 106,
@@ -8,10 +8,14 @@ var direction = {
 }
 
 var GLOBAL_SETTINGS = {
-    width: 600,
-    height: 600,
-    MAX_ROW: 20,
-    MAX_COL: 20,
+    width: 800,
+    height: 800,
+    MAX_ROW: 200,
+    MAX_COL: 200,
+}
+
+var get_cw = function (settings) {
+    return settings.width / settings.MAX_ROW
 }
 
 var heading = direction.DOWN;
@@ -22,19 +26,21 @@ function Cell(row, column) {
 }
 
 $(document).ready(function () {
-    var width = 400;
-    var height = 400;
+
+    var width = GLOBAL_SETTINGS.width;
+    var height = GLOBAL_SETTINGS.height;
+
     var canvas = $("#canvas")[0];
     ctx = canvas.getContext("2d");
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = GLOBAL_SETTINGS.width;
+    canvas.height = GLOBAL_SETTINGS.height;
 
     canvas = DRAWER.drawGrid(canvas)
 
     //Lets save the cell width in a variable for easy control
-    var COL = 20;
+    var COL = GLOBAL_SETTINGS.MAX_COL;
     var ROW = COL;
-    var cw = width/COL;
+    var cw = get_cw(GLOBAL_SETTINGS);
 
     var kBoardWidth = width;
     var kBoardHeight= height;
@@ -140,18 +146,18 @@ $(document).ready(function () {
         remove_flag = !remove_flag;
     })
 
-    $canvas.mousemove(function (e) {
-        var cell = getCursorPosition(e);
-        var options = { row: cell.row, column: cell.column};
-        if (remove_flag == true) {
-            options.color = 'white'
-            DRAWER.paint_cell(canvas, options)
-        }
-        else {
-            options.color = 'red'
-            DRAWER.paint_cell(canvas, options)
-        }
-    })
+    // $canvas.mousemove(function (e) {
+    //     var cell = getCursorPosition(e);
+    //     var options = { row: cell.row, column: cell.column};
+    //     if (remove_flag == true) {
+    //         options.color = 'white'
+    //         DRAWER.paint_cell(canvas, options)
+    //     }
+    //     else {
+    //         options.color = 'red'
+    //         DRAWER.paint_cell(canvas, options)
+    //     }
+    // })
 
 
     $('body').on('keypress', function (e) {
@@ -218,7 +224,7 @@ var DRAWER = (function (GLOBAL_SETTINGS) {
         var height = options.height || 300;
         var row = options.MAX_ROW|| 10;
         var col = options.MAX_COL || 10;
-        var cw = width/row;
+        var cw = get_cw(options);
         var gridColor = options.color || "#eee";
 
         var ctx = canvas.getContext("2d");
@@ -250,8 +256,9 @@ var DRAWER = (function (GLOBAL_SETTINGS) {
         var width = options.width || 300;
         var height = options.height || 300;
         var color = options.color || 'blue';
-        var row = options.row;
-        var col = options.column;
+
+        var row = options.row || options.x || 0 ;
+        var col = options.column || options.y || 0;
         var column = col;
 
         var cw = width/options.MAX_ROW;
@@ -269,6 +276,7 @@ var DRAWER = (function (GLOBAL_SETTINGS) {
              ctx[k].apply(ctx, v);
         })
 
+        console.log(row, column)
         return new Cell(row, column);
 
     }
