@@ -1,28 +1,54 @@
-var PAINTER = DrawerManager.get_drawer({
+var mousedown_flag = false;
+var toggler = true;
+
+PAINTER = DrawerManager.get_drawer({
     width: 450,
     height: 450,
     MAX_ROW: 20,    
     MAX_COL: 20,
 });
 
-// $(canvas).click(function (e) {
-//     var cell = SNAKE.get_cursor_position(e);
-//     var options = { row: cell.row, column: cell.column, color: 'green'};
-//     // SNAKE.draw_grid($canvas[0])
-//     SNAKE.paint_cell(canvas, options)
-// })
 
-// $canvas.mousemove(function (e) {
-//     var cell = getCursorPosition(e);
-//     var options = { row: cell.row, column: cell.column};
-//     if (remove_flag == true) {
-//         options.color = 'white'
-//         SNAKE.paint_cell(canvas, options)
-//     }
-//     else {
-//         options.color = 'red'
-//         SNAKE.paint_cell(canvas, options)
-//     }
-// })
+
+var $canvas = $(PAINTER.get_prepared_canvas());
+$('body').append($canvas);
+
+PAINTER.draw_grid();
+
+
+// PAINTER.draw_grid();
+
+// snake_game.start();
+
+$canvas.click(function(e) {
+    toggler = !toggler;
+})
+
+$canvas.mousedown(function (e) {
+    mousedown_flag = true;
+})
+
+$canvas.mouseup(function(e) {
+    mousedown_flag = false;
+})
+
+$canvas.mousemove(function (e) {
+    console.log("MOVE");
+    var cell = PAINTER.get_cursor_position(e);
+    var options = { row: cell.row, column: cell.column};
+    if (mousedown_flag == true) {
+        options.color = 'green'
+        PAINTER.paint_cell(this, options)
+    }
+
+    // if (toggler) {
+    //     options.color = 'white'
+    //     PAINTER.paint_cell(this, options)
+    // }
+    // else {
+    //     options.color = 'white'
+    //     PAINTER.paint_cell(this, options)
+    // }
+})
 
 
