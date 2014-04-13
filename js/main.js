@@ -1,17 +1,9 @@
-remove_flag = true
-
-
-
 var PAINTER = DrawerManager.get_drawer({
     width: 450,
     height: 450,
     MAX_ROW: 20,    
     MAX_COL: 20,
 });
-
-
-
-
 
 // $(canvas).click(function (e) {
 //     var cell = SNAKE.get_cursor_position(e);
