@@ -2,24 +2,23 @@ var DrawerManager = (function() {
     var generate_drawer = function(GLOBAL_SETTINGS) {
       var Cell = generate_cell(GLOBAL_SETTINGS);
 
+      var width = GLOBAL_SETTINGS.width;
+      var height = GLOBAL_SETTINGS.height;
+      var cw = width/GLOBAL_SETTINGS.MAX_ROW;
+
+
       var canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
 
       function get_cell_fn() {
         return Cell;
       }
 
-      function draw_grid(canvas, options) {
+      function draw_grid(options) {
         options = jQuery.extend(GLOBAL_SETTINGS, options)
-        var width = options.width || 300;
-        var height = options.height || 300;
-        var row = options.MAX_ROW|| 10;
-        var col = options.MAX_COL || 10;
-        var cw = get_cw(options);
         var gridColor = options.color || "#eee";
-
         var ctx = canvas.getContext("2d");
-        canvas.width = width;
-        canvas.height = height;
 
         // verical
         for (var x = 0.5; x < width; x += cw) {
@@ -43,30 +42,26 @@ var DrawerManager = (function() {
       //Lets first create a generic function to paint cells
       var paint_cell = function(canvas, options) {
         options = jQuery.extend(GLOBAL_SETTINGS, options)
-        var width = options.width || 300;
-        var height = options.height || 300;
         var color = options.color || 'blue';
 
-        var row = options.row || options.x || 0 ;
-        var col = options.column || options.y || 0;
-        var column = col;
+        var x = options.row || options.x || 0 ;
+        var y = options.column || options.y || 0;
 
-        var cw = width/options.MAX_ROW;
         var gridColor = options.color || "#eee";
         var ctx = canvas.getContext("2d");
 
         jQuery.extend(ctx, { fillStyle: color || "black" })
 
         settings = {
-            fillRect: [column * cw, row * cw, cw, cw],
-          strokeRect: [column * cw, row* cw, cw, cw]
+            fillRect: [y * cw, x * cw, cw, cw],
+          strokeRect: [y * cw, x* cw, cw, cw]
         }
 
         jQuery.each(settings, function(k, v) {
            ctx[k].apply(ctx, v);
         })
 
-        return new Cell(row, column);
+        return new Cell(x, y);
 
       }
 
@@ -75,8 +70,6 @@ var DrawerManager = (function() {
       }
 
       var get_prepared_canvas = function(canvas_id) {
-        canvas.width = GLOBAL_SETTINGS.width;
-        canvas.height = GLOBAL_SETTINGS.height;
         return canvas;
       }
 
@@ -94,8 +87,8 @@ var DrawerManager = (function() {
         var kBoardWidth = GLOBAL_SETTINGS.width;
         var kBoardHeight= GLOBAL_SETTINGS.height;
 
-        var kPieceWidth = get_cw();
-        var kPieceHeight= get_cw();
+        var kPieceWidth = cw;
+        var kPieceHeight= cw;
         /* returns Cell with .row and .column properties */
         var x;
         var y;
