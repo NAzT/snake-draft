@@ -1,5 +1,5 @@
 remove_flag = true
-var speed = 5  ;
+var speed = 1  ;
 
 
 var direction_mngr = new DirectionManager();
@@ -21,40 +21,20 @@ var DRAWER = DrawerManager.get_drawer({
 
 
 
-
-function getCursorPosition(e) {
-    var gCanvasElement = DRAWER.get_prepared_canvas();
-
-    var kBoardWidth = GLOBAL_SETTINGS.width;
-    var kBoardHeight= GLOBAL_SETTINGS.height;
-
-    var kPieceWidth = DRAWER.get_cw();
-    var kPieceHeight= DRAWER.get_cw();
-    /* returns Cell with .row and .column properties */
-    var x;
-    var y;
-    if (e.pageX != undefined && e.pageY != undefined) {
-        x = e.pageX;
-        y = e.pageY;
-    } else {
-        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-    }
-    x -= gCanvasElement.offsetLeft;
-    y -= gCanvasElement.offsetTop;
-    x = Math.min(x, kBoardWidth * kPieceWidth);
-    y = Math.min(y, kBoardHeight * kPieceHeight);
-    var row = Math.floor(y / kPieceWidth);
-    var column = Math.floor(x / kPieceHeight);
-    var cell = new Cell(row, column);
-    return cell;
+Array.prototype.hasCell = function(item) {
+    this.forEach(function(c, k) {
+        // console.log(c, item)
+        if (item.row == c.row && item.column == c.column) {
+            return true;
+        }
+    });
 }
 
 $(document).ready(function () {
     var canvas = DRAWER.get_prepared_canvas();
     ctx = canvas.getContext("2d");
 
-    canvas = DRAWER.draw_grid(canvas)
+    canvas = DRAWER.draw_grid(canvas);
 
 
 
@@ -71,6 +51,7 @@ $(document).ready(function () {
     draw = function draw(argument) {
         var head = snake[0];
 
+        // eat food
         foods.forEach(function(c, k) {
           if (c.row == head.row && c.column == head.column) {
             snake.push(foods[k]);
@@ -91,12 +72,10 @@ $(document).ready(function () {
 
         tail.mutate({row: head.row, column: head.column})
 
-        var heading = direction_mngr.get_heading_direction_string();
+
         var current_snake_direction = direction_mngr.get_heading_direction_string();
 
         snake_action[current_snake_direction](tail);
-
-        tail.correct_cell();
 
         snake.unshift(tail);
 
@@ -108,19 +87,18 @@ $(document).ready(function () {
     }
 
     if(typeof game_loop != "undefined")  clearInterval(game_loop);
-    game_loop = setInterval(draw, 1000/speed);
+    // game_loop = setInterval(draw, 1000/speed);
 
 
-    window.remove_cell = function (x, y) {
-        DRAWER.paint_cell(canvas, {row: x, column:  y, color: "white"});
-    }
+
 
 
     $canvas = $('#canvas');
 
     $canvas.click(function (e) {
-        var cell = getCursorPosition(e);
+        var cell = DRAWER.get_cursor_position(e);
         var options = { row: cell.row, column: cell.column, color: 'green'};
+        // DRAWER.draw_grid($canvas[0])
         DRAWER.paint_cell(canvas, options)
     })
 

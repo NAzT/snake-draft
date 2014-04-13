@@ -68,7 +68,7 @@ var DrawerManager = (function() {
             }
 
             var get_cw = function() {
-                return GLOBAL_SETTINGS.width / GLOBAL_SETTINGS.MAX_ROW
+                return GLOBAL_SETTINGS.width / GLOBAL_SETTINGS.MAX_ROW;
             }
 
             var get_prepared_canvas = function(canvas_id) {
@@ -84,8 +84,37 @@ var DrawerManager = (function() {
             var draw_squares = function (squares, opts) {
                 squares.forEach(function (c, k) {
                     var options = {row: c.row, column: c.column, color: opts.color}
+                    c.correct_cell();
                     paint_cell(opts.canvas, options);
                 })
+            }
+
+            function get_cursor_position(e) {
+                var gCanvasElement = get_prepared_canvas();
+
+                var kBoardWidth = GLOBAL_SETTINGS.width;
+                var kBoardHeight= GLOBAL_SETTINGS.height;
+
+                var kPieceWidth = get_cw();
+                var kPieceHeight= get_cw();
+                /* returns Cell with .row and .column properties */
+                var x;
+                var y;
+                if (e.pageX != undefined && e.pageY != undefined) {
+                    x = e.pageX;
+                    y = e.pageY;
+                } else {
+                    x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+                    y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+                }
+                x -= gCanvasElement.offsetLeft;
+                y -= gCanvasElement.offsetTop;
+                x = Math.min(x, kBoardWidth * kPieceWidth);
+                y = Math.min(y, kBoardHeight * kPieceHeight);
+                var row = Math.floor(y / kPieceWidth);
+                var column = Math.floor(x / kPieceHeight);
+                var cell = new Cell(row, column);
+                return cell;
             }
 
             return {
@@ -93,7 +122,8 @@ var DrawerManager = (function() {
                 paint_cell: paint_cell,
                 draw_squares: draw_squares,
                 get_cw: get_cw,
-                get_prepared_canvas: get_prepared_canvas
+                get_prepared_canvas: get_prepared_canvas,
+                get_cursor_position: get_cursor_position 
             }
         }
     return {

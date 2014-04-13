@@ -17,7 +17,7 @@ var generate_cell = function(GLOBAL_SETTINGS) {
     }
 
     this.correct_cell = function() {
-      this.row = this.row % GLOBAL_SETTINGS.MAX_ROW;
+      this.row %= GLOBAL_SETTINGS.MAX_ROW;
       this.column %= GLOBAL_SETTINGS.MAX_COL;
 
       if (this.row <0) {
