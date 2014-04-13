@@ -1,7 +1,12 @@
 var DrawerManager = (function() {
     var generate_drawer = function(GLOBAL_SETTINGS) {
+      var Cell = generate_cell(GLOBAL_SETTINGS);
 
       var canvas = document.createElement('canvas');
+
+      function get_cell_fn() {
+        return Cell;
+      }
 
       function draw_grid(canvas, options) {
         options = jQuery.extend(GLOBAL_SETTINGS, options)
@@ -117,7 +122,8 @@ var DrawerManager = (function() {
         draw_squares: draw_squares,
         get_cw: get_cw,
         get_prepared_canvas: get_prepared_canvas,
-        get_cursor_position: get_cursor_position 
+        get_cursor_position: get_cursor_position,
+        get_cell_fn: get_cell_fn 
       }
     }
   return {
@@ -125,4 +131,4 @@ var DrawerManager = (function() {
       return generate_drawer (settings);
     }
   }
-})()
+})();

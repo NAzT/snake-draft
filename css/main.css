@@ -302,3 +302,11 @@ textarea {
         page-break-after: avoid;
     }
 }
+
+
+canvas {
+border:1px dotted;
+float:left;
+margin-left: 30px
+
+}
