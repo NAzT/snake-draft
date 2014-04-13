@@ -1,5 +1,5 @@
 remove_flag = true
-var speed = 1  ;
+var speed = 5;
 
 
 var direction_mngr = new DirectionManager();
@@ -18,26 +18,9 @@ var DRAWER = DrawerManager.get_drawer({
     MAX_COL: 20,
 });
 
-
-
-
-Array.prototype.hasCell = function(item) {
-    this.forEach(function(c, k) {
-        // console.log(c, item)
-        if (item.row == c.row && item.column == c.column) {
-            return true;
-        }
-    });
-}
-
 $(document).ready(function () {
     var canvas = DRAWER.get_prepared_canvas();
-    ctx = canvas.getContext("2d");
-
     canvas = DRAWER.draw_grid(canvas);
-
-
-
 
     window.snake = [];
     window.foods = [];
@@ -60,10 +43,7 @@ $(document).ready(function () {
             if(typeof game_loop != "undefined")  clearInterval(game_loop);
             game_loop = setInterval(draw, 1000/speed);
           }
-
         });
-
-
         // remove tail
 
         var tail = snake.pop();
@@ -83,14 +63,10 @@ $(document).ready(function () {
         DRAWER.draw_squares(foods, { canvas: canvas, color: 'red'})
         DRAWER.draw_squares(snake, { canvas: canvas, color: 'blue'})
 
-
     }
 
     if(typeof game_loop != "undefined")  clearInterval(game_loop);
-    // game_loop = setInterval(draw, 1000/speed);
-
-
-
+    game_loop = setInterval(draw, 1000/speed);
 
 
     $canvas = $('#canvas');
