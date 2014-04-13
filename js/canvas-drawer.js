@@ -1,10 +1,3 @@
-var draw_squares = function (squares, opts) {
-    squares.forEach(function (c, k) {
-        var options = {row: c.row, column: c.column, color: opts.color}
-        DRAWER.paint_cell(opts.canvas, options);
-    })
-}
-
 
 
 
@@ -88,10 +81,17 @@ var DrawerManager = (function() {
                 return canvas;
             }
 
+            var draw_squares = function (squares, opts) {
+                squares.forEach(function (c, k) {
+                    var options = {row: c.row, column: c.column, color: opts.color}
+                    paint_cell(opts.canvas, options);
+                })
+            }
 
             return {
                 draw_grid: draw_grid,
                 paint_cell: paint_cell,
+                draw_squares: draw_squares,
                 get_cw: get_cw,
                 get_prepared_canvas: get_prepared_canvas
             }

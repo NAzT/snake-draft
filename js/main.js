@@ -74,8 +74,7 @@ $(document).ready(function () {
         foods.forEach(function(c, k) {
           if (c.row == head.row && c.column == head.column) {
             snake.push(foods[k]);
-            var cell = new Cell(Math.round(Math.random()*100 % ROW), Math.round(Math.random()*100 % ROW))
-            foods[k] = cell;
+            foods[k] = (new Cell()).random()
             speed++;
             if(typeof game_loop != "undefined")  clearInterval(game_loop);
             game_loop = setInterval(draw, 1000/speed);
@@ -102,8 +101,8 @@ $(document).ready(function () {
         snake.unshift(tail);
 
 
-        draw_squares(foods, { canvas: canvas, color: 'red'})
-        draw_squares(snake, { canvas: canvas, color: 'blue'})
+        DRAWER.draw_squares(foods, { canvas: canvas, color: 'red'})
+        DRAWER.draw_squares(snake, { canvas: canvas, color: 'blue'})
 
 
     }
