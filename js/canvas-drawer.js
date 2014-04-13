@@ -1,5 +1,8 @@
 var DrawerManager = (function() {
     var generate_drawer = function(GLOBAL_SETTINGS) {
+
+      var canvas = document.createElement('canvas');
+
       function draw_grid(canvas, options) {
         options = jQuery.extend(GLOBAL_SETTINGS, options)
         var width = options.width || 300;
@@ -67,12 +70,8 @@ var DrawerManager = (function() {
       }
 
       var get_prepared_canvas = function(canvas_id) {
-
-        var canvas = document.getElementById(canvas_id || 'canvas')
-
         canvas.width = GLOBAL_SETTINGS.width;
         canvas.height = GLOBAL_SETTINGS.height;
-
         return canvas;
       }
 
