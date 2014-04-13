@@ -11,89 +11,92 @@ var Cell = generate_cell({
     MAX_COL: 20,
 });
 
-var DRAWER = DrawerManager.get_drawer({
+var SNAKE = DrawerManager.get_drawer({
     width: 450,
     height: 450,
     MAX_ROW: 20,    
     MAX_COL: 20,
 });
 
-$(document).ready(function () {
-    var canvas = DRAWER.get_prepared_canvas();
-    canvas = DRAWER.draw_grid(canvas);
-
-    window.snake = [];
-    window.foods = [];
-    snake[0] = new Cell(0, 1)
-    snake[1] = new Cell(0, 2)
-    snake[2] = new Cell(0, 3)
-    snake[3] = new Cell(0, 4)
-
-    foods = [new Cell(4, 5), new Cell(6, 6)]
-
-    draw = function draw(argument) {
-        var head = snake[0];
-
-        // eat food
-        foods.forEach(function(c, k) {
-          if (c.row == head.row && c.column == head.column) {
-            snake.push(foods[k]);
-            foods[k] = (new Cell()).random()
-            speed++;
-            if(typeof game_loop != "undefined")  clearInterval(game_loop);
-            game_loop = setInterval(draw, 1000/speed);
-          }
-        });
-        // remove tail
-
-        var tail = snake.pop();
-
-        DRAWER.paint_cell(canvas, {row: tail.row, column: tail.column, color: 'white'});
-
-        tail.mutate({row: head.row, column: head.column})
+var PAINTER = DrawerManager.get_drawer({
+    width: 450,
+    height: 450,
+    MAX_ROW: 20,    
+    MAX_COL: 20,
+});
 
 
-        var current_snake_direction = direction_mngr.get_heading_direction_string();
+var canvas = SNAKE.get_prepared_canvas();
+jQuery('#container').append(canvas);
+canvas = SNAKE.draw_grid(canvas);
 
-        snake_action[current_snake_direction](tail);
+window.snake = [];
+window.foods = [];
+snake[0] = new Cell(0, 1)
+snake[1] = new Cell(0, 2)
+snake[2] = new Cell(0, 3)
+snake[3] = new Cell(0, 4)
 
-        snake.unshift(tail);
+foods = [new Cell(4, 5), new Cell(6, 6)]
 
+var draw = function () {
+    var head = snake[0];
 
-        DRAWER.draw_squares(foods, { canvas: canvas, color: 'red'})
-        DRAWER.draw_squares(snake, { canvas: canvas, color: 'blue'})
+    // eat food
+    foods.forEach(function(c, k) {
+      if (c.row == head.row && c.column == head.column) {
+        snake.push(foods[k]);
+        foods[k] = (new Cell()).random()
+        speed++;
+        if(typeof game_loop != "undefined")  clearInterval(game_loop);
+        game_loop = setInterval(draw, 1000/speed);
+      }
+    });
+    // remove tail
 
-    }
+    var tail = snake.pop();
 
-    if(typeof game_loop != "undefined")  clearInterval(game_loop);
-    game_loop = setInterval(draw, 1000/speed);
+    SNAKE.paint_cell(canvas, {row: tail.row, column: tail.column, color: 'white'});
 
-
-    $canvas = $('#canvas');
-
-    $canvas.click(function (e) {
-        var cell = DRAWER.get_cursor_position(e);
-        var options = { row: cell.row, column: cell.column, color: 'green'};
-        // DRAWER.draw_grid($canvas[0])
-        DRAWER.paint_cell(canvas, options)
-    })
-
-    // $canvas.mousemove(function (e) {
-    //     var cell = getCursorPosition(e);
-    //     var options = { row: cell.row, column: cell.column};
-    //     if (remove_flag == true) {
-    //         options.color = 'white'
-    //         DRAWER.paint_cell(canvas, options)
-    //     }
-    //     else {
-    //         options.color = 'red'
-    //         DRAWER.paint_cell(canvas, options)
-    //     }
-    // })
+    tail.mutate({row: head.row, column: head.column})
 
 
-    $('body').on('keypress', function (e) {
-        direction_mngr.set_heading_direction(e.charCode);
-    })
+    // update snake's heading direction
+    snake_action[direction_mngr.get_heading_direction_string()](tail);
 
+    snake.unshift(tail);
+
+
+    SNAKE.draw_squares(foods, { canvas: canvas, color: 'red'})
+    SNAKE.draw_squares(snake, { canvas: canvas, color: 'blue'})    
+
+}
+
+if(typeof game_loop != "undefined")  clearInterval(game_loop);
+game_loop = setInterval(draw, 1000/speed);
+
+
+$(canvas).click(function (e) {
+    var cell = SNAKE.get_cursor_position(e);
+    var options = { row: cell.row, column: cell.column, color: 'green'};
+    // SNAKE.draw_grid($canvas[0])
+    SNAKE.paint_cell(canvas, options)
+})
+
+// $canvas.mousemove(function (e) {
+//     var cell = getCursorPosition(e);
+//     var options = { row: cell.row, column: cell.column};
+//     if (remove_flag == true) {
+//         options.color = 'white'
+//         SNAKE.paint_cell(canvas, options)
+//     }
+//     else {
+//         options.color = 'red'
+//         SNAKE.paint_cell(canvas, options)
+//     }
+// })
+
+
+$('body').on('keypress', function (e) {
+    direction_mngr.set_heading_direction(e.charCode);
 })
